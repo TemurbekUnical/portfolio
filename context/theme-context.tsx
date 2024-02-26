@@ -8,16 +8,8 @@ type ThemeContextProviderProps = {
   children: React.ReactNode;
 };
 
-type ThemeContextType = {
-  theme: Theme;
-  toggleTheme: () => void;
-};
-
-const ThemeContext = createContext<ThemeContextType | null>(null);
-
-export default function ThemeContextProvider({
-  children,
-}: ThemeContextProviderProps) {
+type ThemeContextType = ReturnType<typeof useThemeContext>;
+const useThemeContext = () => {
   const [theme, setTheme] = useState<Theme>("light");
 
   const toggleTheme = () => {
@@ -46,16 +38,19 @@ export default function ThemeContextProvider({
       document.documentElement.classList.add("dark");
     }
   }, []);
+  return {
+    theme,
+    toggleTheme,
+  };
+};
+const ThemeContext = createContext<ThemeContextType | null>(null);
 
+export default function ThemeContextProvider({
+  children,
+}: ThemeContextProviderProps) {
+  const context = useThemeContext();
   return (
-    <ThemeContext.Provider
-      value={{
-        theme,
-        toggleTheme,
-      }}
-    >
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={context}>{children}</ThemeContext.Provider>
   );
 }
 
